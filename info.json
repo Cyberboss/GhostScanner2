@@ -1,0 +1,11 @@
+{
+  "name": "GhostScanner2",
+  "version": "2.0.1",
+  "title": "Ghost Scanner2",
+  "author": "Tiavor",
+  "contact": "",
+  "homepage": "",
+  "description": "Adds a combinator reading ghost requests from the logistic network it's placed in.",
+  "factorio_version": "1.1",
+  "dependencies": ["base >= 1.1.0"]
+}
