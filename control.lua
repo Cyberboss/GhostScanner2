@@ -143,7 +143,7 @@ do -- tick handlers
 
   function OnTick(event)
 
-    if not event.tick % ScanAreaDelay == 0 then return end
+    if not (event.tick % ScanAreaDelay == 0) then return end
     --log("number of ScanAreas "..tostring(#global.ScanAreas))
     --log("updateindex: "..tostring(global.UpdateIndex))
     --log("number of Scanners "..tostring(#global.GhostScanners))
