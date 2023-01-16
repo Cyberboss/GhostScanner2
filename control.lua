@@ -35,6 +35,8 @@ local Scanner_Name = "ghost-scanner"
 -- MOD SETTINGS --
 local sapt = settings.global["ghost-scanner-scan-areas-per-tick"].value
 local UpdateInterval = settings.global["ghost-scanner-update-interval"].value
+--How long to wait between scanning sapt number of areas
+local ScanAreaDelay = settings.global["ghost-scanner-area-scan-delay"].value
 local MaxResults = settings.global["ghost-scanner-max-results"].value
 if MaxResults == 0 then MaxResults = nil end
 local ShowHidden = settings.global["ghost-scanner-show-hidden"].value
@@ -140,6 +142,8 @@ do -- tick handlers
 
 
   function OnTick(event)
+
+    if not event.tick % ScanAreaDelay == 0 then return end
     --log("number of ScanAreas "..tostring(#global.ScanAreas))
     --log("updateindex: "..tostring(global.UpdateIndex))
     --log("number of Scanners "..tostring(#global.GhostScanners))
