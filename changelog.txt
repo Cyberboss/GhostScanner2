@@ -1,17 +1,21 @@
-Version 2.0.1
+---------------------------------------------------------------------------------------------------
+Version: 2.1.0
+Date: 2023-01-16
+  Changes:
+    - added delay between area scands to improve performance
+---------------------------------------------------------------------------------------------------
+Version: 2.0.1
 Date: 2022-01-20
   Bugfixes:
     - fixed a null-pointer in add_signal
 ---------------------------------------------------------------------------------------------------
-Version 2.0.0
+Version: 2.0.0
 Date: 2022-01-20
   Changes:
     - fixed missing ghost signals
     - added migration from GhostScanner 1.6.x
     - complete rework of control.lua to improve performance
     - added settings: scan-areas-per-tick, which can drastically increase performance, but reduces time inbetween updates of each scanner
----------------------------------------------------------------------------------------------------
-V previous code/versions by Optera V
 ---------------------------------------------------------------------------------------------------
 Version: 1.6.5
 Date: 2022-07-22

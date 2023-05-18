@@ -19,6 +19,15 @@ data:extend({
   },
   {
     type = "int-setting",
+    name = "ghost-scanner-area-scan-delay",
+    order = "aba",
+    setting_type = "runtime-global",
+    default_value = 5,
+    minimum_value = 1,
+    maximum_value = 216000, -- 1h
+  },
+  {
+    type = "int-setting",
     name = "ghost-scanner-max-results",
     order = "ac",
     setting_type = "runtime-global",
