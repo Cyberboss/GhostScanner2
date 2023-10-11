@@ -277,7 +277,7 @@ do
 
     local itemsToPlace = prototype.items_to_place_this;
     for index, value in pairs(itemsToPlace) do
-      itemsToPlace[index] = game.item_prototypes[overide_items_to_place(value.name)]
+      itemsToPlace[index].name = overide_items_to_place(value.name)
     end
 
 
