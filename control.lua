@@ -1,5 +1,6 @@
 --[[ Copyright (c) 2019 Optera
  * update 2.0, 2.1 by Tiavor
+ * update 2.2 by KeinNIemand
  * Part of Ghost Scanner
  *
  * See LICENSE.md in the project directory for license information.
@@ -28,6 +29,7 @@
 --   next_upgrade = true,
 --  }
 
+local coreUtil = require("__core__/lualib/util")
 
 -- constant prototypes names
 local Scanner_Name = "ghost-scanner"
@@ -262,12 +264,29 @@ do
   end
 
   local function get_items_to_place(prototype)
+    local overide_items_to_place = function(name)
+      local prefix = "waterGhost-"
+      if (coreUtil.string_starts_with(name,prefix)) then
+        --get the original entity name from the dummy entity name
+        local originalEntityName = string.sub(name, string.len(prefix) + 1)
+        return originalEntityName
+      else
+        return name
+      end 
+    end
+
+    local itemsToPlace = prototype.items_to_place_this;
+    for index, value in pairs(itemsToPlace) do
+      itemsToPlace[index] = game.item_prototypes[overide_items_to_place(value.name)]
+    end
+
+
     if ShowHidden then
-      global.Lookup_items_to_place_this[prototype.name] = prototype.items_to_place_this
+      global.Lookup_items_to_place_this[prototype.name] = itemsToPlace
     else
       -- filter items flagged as hidden
       local items_to_place_filtered = {}
-      for _, v in pairs (prototype.items_to_place_this) do
+      for _, v in pairs (itemsToPlace) do
         local item = v.name and game.item_prototypes[v.name]
         if item and item.has_flag("hidden") == false then
           items_to_place_filtered[#items_to_place_filtered+1] = v
