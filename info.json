@@ -1,8 +1,8 @@
 {
-  "name": "GhostScanner2",
+  "name": "GhostScanner3",
   "version": "2.2.0",
-  "title": "Ghost Scanner2",
-  "author": "Tiavor",
+  "title": "Ghost Scanner3",
+  "author": "Tiavor, KeinNiemand",
   "contact": "",
   "homepage": "",
   "description": "Adds a combinator reading ghost requests from the logistic network it's placed in.",
