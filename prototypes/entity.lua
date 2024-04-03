@@ -2,7 +2,7 @@
 local sprites = make_4way_animation_from_spritesheet({
   layers = {
     {
-      filename = "__GhostScanner2__/graphics/entity/ghost-scanner.png",
+      filename = "__GhostScanner3__/graphics/entity/ghost-scanner.png",
       width = 58,
       height = 52,
       frame_count = 1,
@@ -10,7 +10,7 @@ local sprites = make_4way_animation_from_spritesheet({
       hr_version =
       {
         scale = 0.5,
-        filename = "__GhostScanner2__/graphics/entity/hr-ghost-scanner.png",
+        filename = "__GhostScanner3__/graphics/entity/hr-ghost-scanner.png",
         width = 114,
         height = 102,
         frame_count = 1,
@@ -40,7 +40,7 @@ local sprites = make_4way_animation_from_spritesheet({
 
 local scanner = table.deepcopy(data.raw["constant-combinator"]["constant-combinator"])
 scanner.name = "ghost-scanner"
-scanner.icon = "__GhostScanner2__/graphics/icons/ghost-scanner.png"
+scanner.icon = "__GhostScanner3__/graphics/icons/ghost-scanner.png"
 scanner.icon_size = 32
 scanner.icon_mipmaps = 1
 scanner.minable.result = "ghost-scanner"

@@ -9,7 +9,7 @@ data:extend({
     type = "item",
     name = "ghost-scanner",
     place_result= "ghost-scanner",
-    icon = "__GhostScanner2__/graphics/icons/ghost-scanner.png",
+    icon = "__GhostScanner3__/graphics/icons/ghost-scanner.png",
     icon_size = 32,
     subgroup = "circuit-network-2",
     order = "gs-a",
