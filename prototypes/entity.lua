@@ -2,38 +2,21 @@
 local sprites = make_4way_animation_from_spritesheet({
   layers = {
     {
-      filename = "__GhostScanner3__/graphics/entity/ghost-scanner.png",
-      width = 58,
-      height = 52,
+      scale = 0.5,
+      filename = "__GhostScanner3__/graphics/entity/hr-ghost-scanner.png",
+      width = 114,
+      height = 102,
       frame_count = 1,
       shift = util.by_pixel(0, 5),
-      hr_version =
-      {
-        scale = 0.5,
-        filename = "__GhostScanner3__/graphics/entity/hr-ghost-scanner.png",
-        width = 114,
-        height = 102,
-        frame_count = 1,
-        shift = util.by_pixel(0, 5),
-      },
     },
     {
+      scale = 0.5,
       filename = "__base__/graphics/entity/combinator/constant-combinator-shadow.png",
-      width = 50,
-      height = 34,
+      width = 98,
+      height = 66,
       frame_count = 1,
-      shift = util.by_pixel(9, 6),
+      shift = util.by_pixel(8.5, 5.5),
       draw_as_shadow = true,
-      hr_version =
-      {
-        scale = 0.5,
-        filename = "__base__/graphics/entity/combinator/hr-constant-combinator-shadow.png",
-        width = 98,
-        height = 66,
-        frame_count = 1,
-        shift = util.by_pixel(8.5, 5.5),
-        draw_as_shadow = true,
-      },
     },
   }
 })

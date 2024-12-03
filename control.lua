@@ -61,7 +61,7 @@ script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
   end
   if event.setting == "ghost-scanner-show-hidden" then
     ShowHidden = settings.global["ghost-scanner-show-hidden"].value
-    global.Lookup_items_to_place_this = {}
+    storage.Lookup_items_to_place_this = {}
   end
   if event.setting == "ghost-scanner-negative-output" then
     InvertSign = settings.global["ghost-scanner-negative-output"].value
@@ -82,7 +82,7 @@ do -- create & remove
     local entity = event.created_entity or event.entity
     if entity and entity.valid then
       if entity.name == Scanner_Name then
-        global.GhostScanners = global.GhostScanners or {}
+        storage.GhostScanners = storage.GhostScanners or {}
 
         -- entity.operable = false
         -- entity.rotatable = false
@@ -90,7 +90,7 @@ do -- create & remove
         local ghostScanner = {}
         ghostScanner.ID = entity.unit_number
         ghostScanner.entity = entity
-        global.GhostScanners[#global.GhostScanners+1] = ghostScanner
+        storage.GhostScanners[#storage.GhostScanners+1] = ghostScanner
         --log("adding scanner "..tostring(ghostScanner.ID))
 
         UpdateEventHandlers()
@@ -102,9 +102,9 @@ do -- create & remove
 
   function RemoveSensor(id)
     --log("removing scanner "..tostring(id))
-    for i=#global.GhostScanners, 1, -1 do
-      if id == global.GhostScanners[i].ID then
-        table.remove(global.GhostScanners,i)
+    for i=#storage.GhostScanners, 1, -1 do
+      if id == storage.GhostScanners[i].ID then
+        table.remove(storage.GhostScanners,i)
       end
     end
     CleanUp(id)
@@ -113,10 +113,10 @@ do -- create & remove
 
   function CleanUp(id)
     --log("cleaning up "..tostring(id))
-    global.ScanSignals[id] = nil
-    global.signal_indexes[id] = nil
-    global.ScanAreas[id] = nil
-    global.found_entities[id]=nil
+    storage.ScanSignals[id] = nil
+    storage.signal_indexes[id] = nil
+    storage.ScanAreas[id] = nil
+    storage.found_entities[id]=nil
   end
 
   function OnEntityRemoved(event)
@@ -131,9 +131,9 @@ do -- tick handlers
     -- unsubscribe tick handlers
     script.on_event(defines.events.on_tick, nil)
 
-    local entity_count = #global.GhostScanners
+    local entity_count = #storage.GhostScanners
     if entity_count > 0 then
-      --log("found some GhostScanners "..tostring(global.GhostScanners))
+      --log("found some GhostScanners "..tostring(storage.GhostScanners))
       script.on_event(defines.events.on_tick, OnTick)
       script.on_nth_tick(math.floor(UpdateInterval+1), OnNthTick)
       script.on_event({defines.events.on_pre_player_mined_item, defines.events.on_robot_pre_mined, defines.events.on_entity_died}, OnEntityRemoved)
@@ -146,26 +146,26 @@ do -- tick handlers
   function OnTick(event)
 
     if not (event.tick % ScanAreaDelay == 0) then return end
-    --log("number of ScanAreas "..tostring(#global.ScanAreas))
-    --log("updateindex: "..tostring(global.UpdateIndex))
-    --log("number of Scanners "..tostring(#global.GhostScanners))
-    if not global.UpdateTimeout then
-      if global.UpdateIndex > #global.GhostScanners then
-        --log("updateindex (over max): "..tostring(global.UpdateIndex))
-        global.UpdateIndex = 1
-        global.UpdateTimeout = true
+    --log("number of ScanAreas "..tostring(#storage.ScanAreas))
+    --log("updateindex: "..tostring(storage.UpdateIndex))
+    --log("number of Scanners "..tostring(#storage.GhostScanners))
+    if not storage.UpdateTimeout then
+      if storage.UpdateIndex > #storage.GhostScanners then
+        --log("updateindex (over max): "..tostring(storage.UpdateIndex))
+        storage.UpdateIndex = 1
+        storage.UpdateTimeout = true
       else
-        --log("updateindex: "..tostring(global.UpdateIndex))
-        UpdateSensor(global.GhostScanners[global.UpdateIndex])
-        global.UpdateIndex = global.UpdateIndex + 1
+        --log("updateindex: "..tostring(storage.UpdateIndex))
+        UpdateSensor(storage.GhostScanners[storage.UpdateIndex])
+        storage.UpdateIndex = storage.UpdateIndex + 1
       end
     end
     UpdateArea()
   end
 
-  -- runs when #global.GhostScanners <= UpdateInterval/2
+  -- runs when #storage.GhostScanners <= UpdateInterval/2
   function OnNthTick(NthTickEvent)
-    global.UpdateTimeout=false
+    storage.UpdateTimeout=false
   end
 
 end
@@ -191,17 +191,17 @@ do
 
   function UpdateArea()
 
-    if global.ScanAreas == nil then
+    if storage.ScanAreas == nil then
       --log("no scanAreas in list")
       return
     end
     
     --log("start update area")
-    -- read and delete (sapt) number of entries from global.scanAreas
+    -- read and delete (sapt) number of entries from storage.scanAreas
     local num = 1
-    --log("ScanAreas: "..dump(global.ScanAreas))
-    --log("GhostScanners: "..dump(global.GhostScanners))
-    for id, cells in next, global.ScanAreas do
+    --log("ScanAreas: "..dump(storage.ScanAreas))
+    --log("GhostScanners: "..dump(storage.GhostScanners))
+    for id, cells in next, storage.ScanAreas do
       --log("ID: "..tostring(id))
       local tempAreas = {}
       --log("scanner ID is "..tostring(i))
@@ -212,14 +212,14 @@ do
           --log("cell is "..dump(cell))
           if num <= sapt then
             if cell ~= nil then
-              if global.ScanSignals[id] == nil then
+              if storage.ScanSignals[id] == nil then
                 --log("attempting to get new signals")
-                global.signal_indexes[id]=nil
-                global.ScanSignals[id]=get_ghosts_as_signals(id,cell,force,{})
-                --log("signals from "..tostring(id).." : "..dump(global.ScanSignals[id]))
+                storage.signal_indexes[id]=nil
+                storage.ScanSignals[id]=get_ghosts_as_signals(id,cell,force,{})
+                --log("signals from "..tostring(id).." : "..dump(storage.ScanSignals[id]))
               else
-                global.ScanSignals[id]=get_ghosts_as_signals(id,cell,force,global.ScanSignals[id])
-                --log("signals from "..tostring(id).." : "..dump(global.ScanSignals[id]))
+                storage.ScanSignals[id]=get_ghosts_as_signals(id,cell,force,storage.ScanSignals[id])
+                --log("signals from "..tostring(id).." : "..dump(storage.ScanSignals[id]))
               end
             end
           else
@@ -229,16 +229,16 @@ do
         end
         
         -- --set signals
-        for j=#global.GhostScanners, 1, -1 do
-          --log("checking index "..tostring(j).." id "..tostring(id).." vs Scanner "..tostring(global.GhostScanners[j].ID).." from max "..tostring(#global.GhostScanners))
-          if id == global.GhostScanners[j].ID then
-            if not global.ScanSignals[id] then
-              global.GhostScanners[j].entity.get_control_behavior().parameters = nil
+        for j=#storage.GhostScanners, 1, -1 do
+          --log("checking index "..tostring(j).." id "..tostring(id).." vs Scanner "..tostring(storage.GhostScanners[j].ID).." from max "..tostring(#storage.GhostScanners))
+          if id == storage.GhostScanners[j].ID then
+            if not storage.ScanSignals[id] then
+              storage.GhostScanners[j].entity.get_control_behavior().parameters = nil
               --log("no signals found for scanner "..tostring(id))
               break
             end
             --log("adding signals to ghostscanner id "..tostring(id).." at index "..tostring(j).." signals: "..dump(signals))
-            global.GhostScanners[j].entity.get_control_behavior().parameters = global.ScanSignals[id] --tablecopy(global.ScanSignals[id])
+            storage.GhostScanners[j].entity.get_control_behavior().parameters = storage.ScanSignals[id] --tablecopy(storage.ScanSignals[id])
             break
           else
             if j==1 then
@@ -247,19 +247,19 @@ do
           end
         end
         if #tempAreas > 0 then
-          global.ScanAreas[id].cells=tablecopy(tempAreas)
+          storage.ScanAreas[id].cells=tablecopy(tempAreas)
           tempAreas={}
           --log("cells larger than limit, inserting tempArea to ScanArea")
           break
         else          
           --log("removing "..tostring(id).." from ScanArea")
-          global.ScanAreas[id]=nil
-          global.found_entities[id]=nil
+          storage.ScanAreas[id]=nil
+          storage.found_entities[id]=nil
         end
       end
     end
     --if num == 1 then
-    --  global.found_entities[id]={}
+    --  storage.found_entities[id]={}
     --end
   end
 
@@ -282,29 +282,29 @@ do
 
 
     if ShowHidden then
-      global.Lookup_items_to_place_this[prototype.name] = itemsToPlace
+      storage.Lookup_items_to_place_this[prototype.name] = itemsToPlace
     else
       -- filter items flagged as hidden
       local items_to_place_filtered = {}
       for _, v in pairs (itemsToPlace) do
-        local item = v.name and game.item_prototypes[v.name]
+        local item = v.name and prototypes.item[v.name]
         if item and item.has_flag("hidden") == false then
           items_to_place_filtered[#items_to_place_filtered+1] = v
         end
       end
-      global.Lookup_items_to_place_this[prototype.name] = items_to_place_filtered
+      storage.Lookup_items_to_place_this[prototype.name] = items_to_place_filtered
     end
-    return global.Lookup_items_to_place_this[prototype.name]
+    return storage.Lookup_items_to_place_this[prototype.name]
   end
 
   local function add_signal(id, name, count)
-    local signal_index = global.signal_indexes[id][name]
+    local signal_index = storage.signal_indexes[id][name]
     local s
     if signal_index and signals[signal_index] then
       s = signals[signal_index]
     else
       signal_index = #signals+1
-      global.signal_indexes[id][name] = signal_index
+      storage.signal_indexes[id][name] = signal_index
       s = { signal = { type = "item", name = name }, count = 0, index = (signal_index) }
       signals[signal_index] = s
     end
@@ -328,30 +328,30 @@ do
   function get_ghosts_as_signals(id,cell,force,prev_entry)
     local result_limit = MaxResults
     --log("in get_ghosts:")
-    --log("entities: "..dump(global.found_entities))
+    --log("entities: "..dump(storage.found_entities))
      -- store found unit_numbers to prevent duplicate entries
-    if global.found_entities == nil then
-      global.found_entities={}
+    if storage.found_entities == nil then
+      storage.found_entities={}
     end
-    if global.found_entities[id] == nil then
-      global.found_entities[id]={}
+    if storage.found_entities[id] == nil then
+      storage.found_entities[id]={}
     end 
-    --log("entities: "..dump(global.found_entities))
-    --log("entities at id "..tostring(id)..": "..dump(global.found_entities[id]))
+    --log("entities: "..dump(storage.found_entities))
+    --log("entities at id "..tostring(id)..": "..dump(storage.found_entities[id]))
     signals = prev_entry
-    if global.signal_indexes == nil then
-      global.signal_indexes = {}
+    if storage.signal_indexes == nil then
+      storage.signal_indexes = {}
     end
     if signals == nil then
       signals = {}
-      global.signal_indexes[id] = {}
+      storage.signal_indexes[id] = {}
     end
-    --log("signal_indexes "..dump(global.signal_indexes))
-    if global.signal_indexes[id] == nil then
-      global.signal_indexes[id] = {}
+    --log("signal_indexes "..dump(storage.signal_indexes))
+    if storage.signal_indexes[id] == nil then
+      storage.signal_indexes[id] = {}
     end
-    --log("signal_indexes "..dump(global.signal_indexes))
-    --log("signal_indexes at id: "..dump(global.signal_indexes[id]))
+    --log("signal_indexes "..dump(storage.signal_indexes))
+    --log("signal_indexes at id: "..dump(storage.signal_indexes[id]))
     --log("starting get_ghosts_as_signals")
     if cell == nil or not cell.valid then
       return {}
@@ -383,8 +383,8 @@ do
       local count_unique_entities = 0
       for _, e in pairs(entities) do
         local uid = e.unit_number or e.position
-        if not global.found_entities[id][uid] and e.to_be_deconstructed() and e.prototype.cliff_explosive_prototype then
-          global.found_entities[id][uid] = true
+        if not storage.found_entities[id][uid] and e.to_be_deconstructed() and e.prototype.cliff_explosive_prototype then
+          storage.found_entities[id][uid] = true
           add_signal(id,e.prototype.cliff_explosive_prototype, 1)
           count_unique_entities = count_unique_entities + 1
         end
@@ -402,11 +402,11 @@ do
       for _, e in pairs(entities) do
         local uid = e.unit_number
         local upgrade_prototype = e.get_upgrade_target()
-        if not global.found_entities[id][uid] and upgrade_prototype then
+        if not storage.found_entities[id][uid] and upgrade_prototype then
           if is_in_bbox(e.position, search_area.bounds) then
-            global.found_entities[id][uid] = true
+            storage.found_entities[id][uid] = true
             for _, item_stack in pairs(
-              global.Lookup_items_to_place_this[upgrade_prototype.name] or
+              storage.Lookup_items_to_place_this[upgrade_prototype.name] or
               get_items_to_place(upgrade_prototype)
             ) do
               add_signal(id,item_stack.name, item_stack.count)
@@ -430,11 +430,11 @@ do
       --log("found entity-ghosts "..dump(entities))
       for _, e in pairs(entities) do
         local uid = e.unit_number
-        if not global.found_entities[id][uid] then
+        if not storage.found_entities[id][uid] then
           if is_in_bbox(e.position, search_area.bounds) then
-            global.found_entities[id][uid] = true
+            storage.found_entities[id][uid] = true
             for _, item_stack in pairs(
-              global.Lookup_items_to_place_this[e.ghost_name] or
+              storage.Lookup_items_to_place_this[e.ghost_name] or
               get_items_to_place(e.ghost_prototype)
             ) do
               add_signal(id,item_stack.name, item_stack.count)
@@ -462,8 +462,8 @@ do
       --log("found item request proxy: "..dump(entities))
       for _, e in pairs(entities) do
         local uid = script.register_on_entity_destroyed(e) -- abuse on_entity_destroyed to generate ids directly for proxies
-        if not global.found_entities[id][uid] then
-          global.found_entities[id][uid] = true
+        if not storage.found_entities[id][uid] then
+          storage.found_entities[id][uid] = true
           for request_item, count in pairs(e.item_requests) do
             add_signal(id,request_item, count)
             count_unique_entities = count_unique_entities + count
@@ -484,10 +484,10 @@ do
       --log("found tile ghosts: "..dump(entities))
       for _, e in pairs(entities) do
         local uid = e.unit_number
-        if not global.found_entities[id][uid] then
-          global.found_entities[id][uid] = true
+        if not storage.found_entities[id][uid] then
+          storage.found_entities[id][uid] = true
           for _, item_stack in pairs(
-            global.Lookup_items_to_place_this[e.ghost_name] or
+            storage.Lookup_items_to_place_this[e.ghost_name] or
             get_items_to_place(e.ghost_prototype)
           ) do
             add_signal(id,item_stack.name, item_stack.count)
@@ -509,7 +509,7 @@ do
       if InvertSign then round = math.floor end
 
       for _, signal in pairs(signals) do
-        local prototype = game.item_prototypes[signal.signal.name]
+        local prototype = prototypes.item[signal.signal.name]
         if prototype then
           local stack_size = prototype.stack_size
           signal.count = round(signal.count / stack_size) * stack_size
@@ -547,7 +547,7 @@ do
       return
     end
 
-    if global.ScanAreas[ghostScanner.ID] == nil then
+    if storage.ScanAreas[ghostScanner.ID] == nil then
       -- storing logistic network becomes problematic when roboports run out of energy
       local logisticNetwork = ghostScanner.entity.surface.find_logistic_network_by_position(ghostScanner.entity.position, ghostScanner.entity.force )
       if not logisticNetwork then
@@ -559,10 +559,10 @@ do
 
       --log("adding "..tostring(#logisticNetwork.cells).." cells from network to ScanArea "..tostring(ghostScanner.ID))
       -- resetting found data and adding areas to scan queue
-      global.ScanSignals[ghostScanner.ID]=nil
-      global.signal_indexes[ghostScanner.ID]=nil
-      global.found_entities[ghostScanner.ID]=nil
-      global.ScanAreas[ghostScanner.ID]={cells=tablecopy(logisticNetwork.cells),force=logisticNetwork.force}
+      storage.ScanSignals[ghostScanner.ID]=nil
+      storage.signal_indexes[ghostScanner.ID]=nil
+      storage.found_entities[ghostScanner.ID]=nil
+      storage.ScanAreas[ghostScanner.ID]={cells=tablecopy(logisticNetwork.cells),force=logisticNetwork.force}
       --log("adding cells to ScanAreas id "..tostring(ghostScanner.ID))
     end
   end
@@ -578,19 +578,19 @@ end
 -- INIT --
 do
   local function init_mod()
-    if #global.GhostScanners == 0 and not global.InitMod then
-      global.GhostScanners = global.GhostScanners or {}
+    if #storage.GhostScanners == 0 and not storage.InitMod then
+      storage.GhostScanners = storage.GhostScanners or {}
       for _,surface in pairs(game.surfaces) do
         local entities = surface.find_entities_filtered{name="ghost-scanner"}
         for _, entity in pairs(entities) do
           local ghostScanner = {}
           ghostScanner.ID = entity.unit_number
           ghostScanner.entity = entity
-          global.GhostScanners[#global.GhostScanners+1] = ghostScanner
+          storage.GhostScanners[#storage.GhostScanners+1] = ghostScanner
         end
       end
       log("initialized mod for the first time, scanned for old ghost scanners")
-      global.InitMod = true
+      storage.InitMod = true
     end
   end
   local function init_events()
@@ -600,7 +600,7 @@ do
       defines.events.script_raised_built,
       defines.events.script_raised_revive,
     }, OnEntityCreated)
-    if global.GhostScanners then
+    if storage.GhostScanners then
       UpdateEventHandlers()
     end
   end
@@ -610,31 +610,31 @@ do
   end)
 
   script.on_init(function()
-    global.InitMod = global.InitMod or false
-    global.ScanSignals = {}
-    global.UpdateTimeout = global.UpdateTimeout or false
-    global.GhostScanners = global.GhostScanners or {}
-    global.ScanAreas = {}
-    global.UpdateIndex = global.UpdateIndex or 1
-    global.signal_indexes = global.signal_indexes or {}
-    global.found_entities = global.found_entities or {}
-    --global.UpdateIndex2 = global.UpdateIndex2 or 1
-    global.Lookup_items_to_place_this = {}
+    storage.InitMod = storage.InitMod or false
+    storage.ScanSignals = {}
+    storage.UpdateTimeout = storage.UpdateTimeout or false
+    storage.GhostScanners = storage.GhostScanners or {}
+    storage.ScanAreas = {}
+    storage.UpdateIndex = storage.UpdateIndex or 1
+    storage.signal_indexes = storage.signal_indexes or {}
+    storage.found_entities = storage.found_entities or {}
+    --storage.UpdateIndex2 = storage.UpdateIndex2 or 1
+    storage.Lookup_items_to_place_this = {}
     init_mod()
     init_events()
   end)
 
   script.on_configuration_changed(function(data)
-    global.InitMod = global.InitMod or false
-    global.ScanSignals = global.ScanSignals or {}
-    global.UpdateTimeout = global.UpdateTimeout or false
-    global.GhostScanners = global.GhostScanners or {}
-    global.ScanAreas = {}
-    global.UpdateIndex = global.UpdateIndex or 1
-    global.signal_indexes = global.signal_indexes or {}
-    global.found_entities = global.found_entities or {}
-    --global.UpdateIndex2 = global.UpdateIndex2 or 1
-    global.Lookup_items_to_place_this = {}
+    storage.InitMod = storage.InitMod or false
+    storage.ScanSignals = storage.ScanSignals or {}
+    storage.UpdateTimeout = storage.UpdateTimeout or false
+    storage.GhostScanners = storage.GhostScanners or {}
+    storage.ScanAreas = {}
+    storage.UpdateIndex = storage.UpdateIndex or 1
+    storage.signal_indexes = storage.signal_indexes or {}
+    storage.found_entities = storage.found_entities or {}
+    --storage.UpdateIndex2 = storage.UpdateIndex2 or 1
+    storage.Lookup_items_to_place_this = {}
     init_events()
   end)
 
